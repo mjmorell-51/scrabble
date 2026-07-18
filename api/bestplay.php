@@ -826,4 +826,44 @@ if ($action === 'score') {
     ]);
 }
 
+if ($action === 'best') {
+    $input = json_decode((string) file_get_contents('php://input'), true);
+    if (!is_array($input)) {
+        respond(400, ['error' => 'Malformed request body.']);
+    }
+
+    $boardTiles = $input['board'] ?? null;
+    $rackRaw = $input['rack'] ?? null;
+    if (!is_array($boardTiles) || !is_array($rackRaw)) {
+        respond(400, ['error' => 'Malformed request body.']);
+    }
+
+    $rack = array_map(fn($l) => strtoupper((string) $l), $rackRaw);
+    if (count($rack) < 1 || count($rack) > 7 || !preg_match('/^[A-Z_]+$/', implode('', $rack))) {
+        respond(400, ['error' => 'Invalid rack.']);
+    }
+    $rackCounts = letterCounts(implode('', $rack));
+    $board = boardFromPlacedTiles($boardTiles);
+
+    $dict = loadDictionary();
+    $leftDict = buildLeftDict($dict);
+    $moves = legalMoves($board, $rackCounts, $dict, $leftDict);
+
+    if (empty($moves)) {
+        respond(200, ['found' => false]);
+    }
+
+    $best = $moves[0];
+    foreach ($moves as $m) {
+        if ($m['score'] > $best['score']) {
+            $best = $m;
+        }
+    }
+
+    respond(200, [
+        'found' => true, 'newTiles' => $best['newTiles'], 'words' => $best['words'],
+        'score' => $best['score'], 'bingo' => $best['bingo'],
+    ]);
+}
+
 respond(400, ['error' => 'Unknown action.']);

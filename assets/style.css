@@ -299,7 +299,7 @@ main.panel {
 .mode-toggle {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
   flex-wrap: wrap;
 }
 
@@ -365,6 +365,7 @@ main.panel {
   display: flex;
   gap: 0.6rem;
   flex-wrap: wrap;
+  margin-bottom: 0.75rem;
 }
 
 .bw-actions button {
@@ -504,8 +505,20 @@ html[data-text-size="xlarge"] .pts { font-size: 0.62em; }
 }
 
 .cell.pending .tile {
-  box-shadow: 0 0 0 2px var(--accent-ink) inset;
+  /* var(--accent-ink) is a pale cream, almost the same tone as the tile itself
+     -- barely visible. Use the site's accent red-orange instead, which
+     actually contrasts against a cream tile. */
+  box-shadow: 0 0 0 2px var(--accent) inset;
   opacity: 0.85;
+}
+
+/* Marks whichever tiles were placed by the most recent play -- a manual
+   submit or Show Best -- distinct from .pending's in-progress look since
+   these are already committed to the board. A warm gold barely showed up
+   against the tile's own cream background -- needs a color that actually
+   contrasts with it. */
+.cell.just-played .tile {
+  box-shadow: 0 0 0 2px #29b6d8 inset, 0 0 0 2px #29b6d8, 0 0 8px 2px rgba(41, 182, 216, 0.65);
 }
 
 button.tile {
@@ -518,8 +531,11 @@ button.tile {
 }
 
 button.tile:disabled {
+  /* Rack tiles are "disabled" (non-tappable) any time tapping isn't the current
+     input method -- e.g. all of Type mode -- which is most of the time. They
+     still need to read clearly then, so no opacity fade here; only a tile
+     that's actually been placed this turn (.used) should look muted. */
   cursor: default;
-  opacity: 0.4;
 }
 
 button.tile.used {

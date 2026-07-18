@@ -35,6 +35,7 @@
   let pendingPlacements = []; // [{r,c,letter,blank}]
   let usedRackIndexes = new Set(); // place mode: which rack slots are already placed this turn
   let pendingBlankIndex = null;
+  let lastPlayed = new Set(); // "r,c" keys placed by the most recent committed play
 
   const boardEl = document.getElementById('board');
   const rackEl = document.getElementById('rack');
@@ -45,6 +46,7 @@
   const placeActionsEl = document.getElementById('place-actions');
   const doneBtn = document.getElementById('done-btn');
   const clearBtn = document.getElementById('clear-btn');
+  const showBestBtn = document.getElementById('show-best-btn');
   const newBoardBtn = document.getElementById('new-board-btn');
   const blankPickerEl = document.getElementById('blank-picker');
   const modeBtns = Array.from(document.querySelectorAll('.mode-btn[data-mode]'));
@@ -104,6 +106,9 @@
         }
         if (isPending) {
           classes.push('pending');
+        }
+        if (!isPending && tile && lastPlayed.has(`${r},${c}`)) {
+          classes.push('just-played');
         }
         if (selectedStart && selectedStart.r === r && selectedStart.c === c && !tile) {
           classes.push('selected');
@@ -168,7 +173,7 @@
   }
 
   function setControlsEnabled(enabled) {
-    [typeInput, typeSubmitBtn, doneBtn, clearBtn, newBoardBtn, ...modeBtns, ...dirBtns].forEach((el) => {
+    [typeInput, typeSubmitBtn, doneBtn, clearBtn, showBestBtn, newBoardBtn, ...modeBtns, ...dirBtns].forEach((el) => {
       el.disabled = !enabled;
     });
     if (enabled) {
@@ -313,6 +318,8 @@
         placements.forEach((p) => {
           board[`${p.r},${p.c}`] = { r: p.r, c: p.c, letter: p.letter, blank: p.blank };
         });
+        consumeFromRack(placements);
+        lastPlayed = new Set(placements.map((p) => `${p.r},${p.c}`));
         resetTurn();
         render();
       }
@@ -321,6 +328,64 @@
     } finally {
       setControlsEnabled(true);
     }
+  }
+
+  // Removes the tiles a play used from the rack, same as a real turn would --
+  // a blank consumes one unassigned '_' slot regardless of what letter it was
+  // played as.
+  function consumeFromRack(newTiles) {
+    newTiles.forEach((t) => {
+      const wanted = t.blank ? '_' : t.letter;
+      const idx = rack.indexOf(wanted);
+      if (idx !== -1) {
+        rack.splice(idx, 1);
+      }
+    });
+  }
+
+  async function showBest() {
+    if (turnLocked()) {
+      showResultError('Finish or clear your current play first.');
+      return;
+    }
+    setControlsEnabled(false);
+    resultEl.innerHTML = '<p class="hint">Finding the best play...</p>';
+    try {
+      const response = await fetch('/api/bestplay.php?action=best', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ board: Object.values(board), rack }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        showResultError(data.error || 'Something went wrong.');
+        return;
+      }
+      if (!data.found) {
+        showResultError('No legal play was found for this rack.');
+        return;
+      }
+      data.newTiles.forEach((t) => {
+        board[`${t.r},${t.c}`] = { r: t.r, c: t.c, letter: t.letter, blank: t.blank };
+      });
+      consumeFromRack(data.newTiles);
+      lastPlayed = new Set(data.newTiles.map((t) => `${t.r},${t.c}`));
+      resetTurn();
+      resultEl.innerHTML = buildPlayMessage({
+        valid: true, words: data.words, score: data.score, bingo: data.bingo,
+        rank: 1, totalValid: 1, bestWord: primaryWordOf(data.words), bestScore: data.score,
+      });
+      render();
+    } catch (err) {
+      showResultError('Could not reach the server. Try again.');
+    } finally {
+      setControlsEnabled(true);
+    }
+  }
+
+  function primaryWordOf(words) {
+    if (!words || words.length === 0) return null;
+    return words.reduce((a, b) => (a.word.length >= b.word.length ? a : b)).word;
   }
 
   async function newBoard() {
@@ -336,6 +401,7 @@
       board = {};
       data.board.forEach((t) => { board[`${t.r},${t.c}`] = t; });
       rack = data.rack;
+      lastPlayed = new Set();
       resetTurn();
       resultEl.innerHTML = '';
       render();
@@ -419,6 +485,7 @@
     render();
   });
 
+  showBestBtn.addEventListener('click', showBest);
   newBoardBtn.addEventListener('click', newBoard);
 
   newBoard();
