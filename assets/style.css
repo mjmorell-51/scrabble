@@ -9,6 +9,7 @@
   --accent: #b3472b;
   --accent-ink: #fff8ec;
   --page-bg: #1b3329;
+  --font-scale: 1;
 }
 
 * { box-sizing: border-box; }
@@ -16,6 +17,13 @@
 html, body {
   margin: 0;
   min-height: 100%;
+}
+
+html {
+  /* Driven by the on-page text-size toggle (assets/a11y.js) so everything sized
+     in rem — including tile boxes — scales together with the text, instead of
+     the OS/browser boosting glyph size independently of box size. */
+  font-size: calc(100% * var(--font-scale));
 }
 
 body {
@@ -74,8 +82,8 @@ header.site a {
 
 .tile .pts {
   position: absolute;
-  bottom: 2px;
-  right: 4px;
+  bottom: 0.12em;
+  right: 0.2em;
   font-size: 0.55em;
   font-weight: 600;
   font-family: system-ui, sans-serif;
@@ -83,9 +91,27 @@ header.site a {
 
 .tagline {
   color: var(--tile);
-  opacity: 0.75;
+  opacity: 0.85;
   font-size: 0.95rem;
   margin-top: 0.75rem;
+}
+
+.text-size-btn {
+  margin-top: 0.9rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.4rem 0.9rem;
+  min-height: 2.25rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: transparent;
+  color: var(--tile);
+  cursor: pointer;
+}
+
+.text-size-btn:hover,
+.text-size-btn:focus-visible {
+  background: rgba(255,255,255,0.14);
 }
 
 .card-grid {
@@ -164,10 +190,12 @@ main.panel {
 }
 
 .back-link {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
   margin-bottom: 1.25rem;
   color: var(--tile);
-  opacity: 0.8;
+  opacity: 0.9;
   text-decoration: none;
   font-size: 0.9rem;
 }
@@ -183,6 +211,7 @@ main.panel {
   flex: 1;
   font-size: 1.3rem;
   padding: 0.6rem 0.75rem;
+  min-height: 2.75rem;
   border-radius: 8px;
   border: none;
   font-family: Georgia, serif;
@@ -195,6 +224,7 @@ main.panel {
   font-size: 1rem;
   font-weight: 700;
   padding: 0.6rem 1.1rem;
+  min-height: 2.75rem;
   border-radius: 8px;
   border: none;
   background: var(--accent);
@@ -249,7 +279,7 @@ main.panel {
 }
 
 .hint {
-  opacity: 0.7;
+  opacity: 0.85;
   font-size: 0.85rem;
   margin-top: 0.75rem;
 }
@@ -264,6 +294,7 @@ main.panel {
 .mode-btn {
   flex: 1;
   min-width: 140px;
+  min-height: 2.75rem;
   font-size: 0.9rem;
   font-weight: 700;
   padding: 0.55rem 0.8rem;
@@ -272,7 +303,7 @@ main.panel {
   background: transparent;
   color: var(--tile);
   cursor: pointer;
-  opacity: 0.7;
+  opacity: 0.85;
 }
 
 .mode-btn.active {
@@ -284,11 +315,17 @@ main.panel {
 
 .rack {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  /* auto-fit + a real minmax floor (not 0) means tiles shrink to fit 7 across
+     on a normal-size narrow phone, but if text is scaled way up (our toggle,
+     or an OS/browser text-size boost we can't detect), columns stop shrinking
+     below a legible minimum and extra tiles wrap to another row instead of
+     clipping or overlapping. */
+  grid-template-columns: repeat(auto-fit, minmax(2.3rem, 1fr));
   gap: 0.5rem;
   max-width: 24rem;
   min-height: 2rem;
   margin: 1.5rem auto;
+  justify-content: center;
 }
 
 .rack .tile {
@@ -312,6 +349,7 @@ main.panel {
 .bw-actions button {
   flex: 1;
   min-width: 120px;
+  min-height: 2.75rem;
   font-size: 1rem;
   font-weight: 700;
   padding: 0.6rem 1.1rem;
@@ -336,5 +374,11 @@ footer.site {
   margin-top: 2.5rem;
   text-align: center;
   font-size: 0.78rem;
-  opacity: 0.55;
+  opacity: 0.7;
+}
+
+@media (prefers-contrast: more) {
+  .tagline, .hint, .back-link, footer.site { opacity: 1; }
+  .card.disabled { opacity: 0.8; }
+  main.panel { border-color: rgba(255,255,255,0.3); }
 }
