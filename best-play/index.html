@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Best Play — Scrabble Games</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <script src="/assets/a11y.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <header class="site">
+      <a href="/">
+        <div class="logo">
+          <span class="tile">S<span class="pts">1</span></span>
+          <span class="tile">C<span class="pts">3</span></span>
+          <span class="tile">R<span class="pts">1</span></span>
+          <span class="tile">A<span class="pts">1</span></span>
+          <span class="tile">B<span class="pts">3</span></span>
+        </div>
+      </a>
+    </header>
+
+    <a class="back-link" href="/">&larr; Back home</a>
+
+    <main class="panel">
+      <h1 style="margin-top:0;">Best Play</h1>
+      <p class="hint" style="margin-top:-0.5rem;">Tap a square to start, choose a direction, then play a word &mdash; type it, or place tiles one at a time.</p>
+
+      <div class="mode-toggle" role="group" aria-label="Input mode">
+        <button type="button" class="mode-btn active" data-mode="type">Type a word</button>
+        <button type="button" class="mode-btn" data-mode="place">Place tiles</button>
+      </div>
+
+      <div class="mode-toggle" role="group" aria-label="Direction">
+        <button type="button" class="mode-btn active" data-dir="across">Across &rarr;</button>
+        <button type="button" class="mode-btn" data-dir="down">Down &darr;</button>
+      </div>
+
+      <div class="board-wrap">
+        <div class="board" id="board"></div>
+      </div>
+
+      <div class="rack" id="rack"></div>
+
+      <form class="lookup-form" id="type-form" autocomplete="off">
+        <input
+          type="text"
+          id="type-input"
+          name="word"
+          maxlength="15"
+          pattern="[A-Za-z]+"
+          placeholder="Type your word"
+          autocomplete="off"
+        >
+        <button type="submit" id="type-submit-btn">Submit</button>
+      </form>
+
+      <div class="bw-actions" id="place-actions" hidden>
+        <button type="button" id="done-btn">Done</button>
+        <button type="button" id="clear-btn">Clear</button>
+      </div>
+
+      <div class="bw-actions">
+        <button type="button" id="new-board-btn">New Board</button>
+      </div>
+
+      <div id="blank-picker" class="blank-picker" hidden></div>
+
+      <div class="result" id="result"></div>
+    </main>
+
+    <footer class="site">scrabble.elenmorell.com</footer>
+  </div>
+
+  <script src="/assets/bestplay.js"></script>
+</body>
+</html>

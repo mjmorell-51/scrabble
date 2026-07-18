@@ -409,3 +409,125 @@ html[data-text-size="xlarge"] .rack { grid-template-columns: repeat(auto-fit, mi
 
 html[data-text-size="large"] .pts { font-size: 0.58em; }
 html[data-text-size="xlarge"] .pts { font-size: 0.62em; }
+
+.board-wrap {
+  overflow-x: auto;
+  margin: 1rem 0;
+  /* A 15x15 board won't fit a narrow phone at a legible size -- horizontal
+     scroll here is an accepted, deliberate tradeoff, not a bug to chase away. */
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(15, minmax(1.9rem, 1fr));
+  grid-template-rows: repeat(15, minmax(1.9rem, 1fr));
+  gap: 2px;
+  width: max-content;
+  margin: 0 auto;
+  background: var(--board-line);
+  padding: 2px;
+  border-radius: 8px;
+}
+
+.cell {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  background: var(--board);
+  color: var(--tile);
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.cell:disabled {
+  cursor: default;
+}
+
+.premium-label {
+  font-size: 0.5rem;
+  font-weight: 700;
+  opacity: 0.85;
+  font-family: system-ui, sans-serif;
+}
+
+.cell.dl { background: #2f6fae; }
+.cell.tl { background: #1f4f7a; }
+.cell.dw { background: #b3472b; }
+.cell.tw { background: #7a2020; }
+.cell.star { background: #b3472b; }
+.cell.star .premium-label { font-size: 0.85rem; }
+
+.cell .tile {
+  width: 100%;
+  height: 100%;
+  border-radius: 2px;
+}
+
+.cell.selected {
+  outline: 3px solid var(--accent-ink);
+  outline-offset: -3px;
+}
+
+.cell.pending .tile {
+  box-shadow: 0 0 0 2px var(--accent-ink) inset;
+  opacity: 0.85;
+}
+
+button.tile {
+  /* Strip native button chrome but leave background alone -- .tile's gradient
+     rule (lower specificity) still needs to apply here. */
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+button.tile:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+button.tile.used {
+  opacity: 0.35;
+}
+
+.blank-picker {
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+  background: rgba(0,0,0,0.18);
+  border-radius: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.blank-letter-btn {
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  font-weight: 700;
+  border-radius: 6px;
+  border: none;
+  background: var(--tile);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+html[data-text-size="large"] .board {
+  grid-template-columns: repeat(15, minmax(2.3rem, 1fr));
+  grid-template-rows: repeat(15, minmax(2.3rem, 1fr));
+}
+html[data-text-size="xlarge"] .board {
+  grid-template-columns: repeat(15, minmax(2.7rem, 1fr));
+  grid-template-rows: repeat(15, minmax(2.7rem, 1fr));
+}
+
+@media (prefers-contrast: more) {
+  .cell.selected { outline-width: 4px; }
+  .cell.dl, .cell.tl, .cell.dw, .cell.tw, .cell.star { border: 1px solid rgba(255,255,255,0.5); }
+}
