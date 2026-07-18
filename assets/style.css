@@ -419,10 +419,13 @@ html[data-text-size="xlarge"] .pts { font-size: 0.62em; }
 
 .board {
   display: grid;
-  grid-template-columns: repeat(15, minmax(1.9rem, 1fr));
-  grid-template-rows: repeat(15, minmax(1.9rem, 1fr));
+  /* Fixed-size tracks, not minmax(...,1fr) -- 1fr tracks can't actually grow
+     under width:max-content (no free space to distribute), so with variable
+     content (2-letter premium labels vs empty cells) columns ended up wildly
+     uneven widths instead of a uniform grid. */
+  grid-template-columns: repeat(15, 2.4rem);
+  grid-template-rows: repeat(15, 2.4rem);
   gap: 2px;
-  width: max-content;
   margin: 0 auto;
   background: var(--board-line);
   padding: 2px;
@@ -437,7 +440,7 @@ html[data-text-size="xlarge"] .pts { font-size: 0.62em; }
   justify-content: center;
   width: 100%;
   height: 100%;
-  aspect-ratio: 1 / 1;
+  overflow: hidden;
   background: var(--board);
   color: var(--tile);
   cursor: pointer;
@@ -449,7 +452,7 @@ html[data-text-size="xlarge"] .pts { font-size: 0.62em; }
 }
 
 .premium-label {
-  font-size: 0.5rem;
+  font-size: 0.62rem;
   font-weight: 700;
   opacity: 0.85;
   font-family: system-ui, sans-serif;
@@ -460,12 +463,23 @@ html[data-text-size="xlarge"] .pts { font-size: 0.62em; }
 .cell.dw { background: #b3472b; }
 .cell.tw { background: #7a2020; }
 .cell.star { background: #b3472b; }
-.cell.star .premium-label { font-size: 0.85rem; }
+.cell.star .premium-label { font-size: 1rem; }
 
 .cell .tile {
   width: 100%;
   height: 100%;
+  font-size: 1.15rem;
   border-radius: 2px;
+}
+
+@media (max-width: 640px) {
+  .board {
+    grid-template-columns: repeat(15, 1.9rem);
+    grid-template-rows: repeat(15, 1.9rem);
+  }
+  .cell .tile { font-size: 0.9rem; }
+  .premium-label { font-size: 0.5rem; }
+  .cell.star .premium-label { font-size: 0.8rem; }
 }
 
 .cell.selected {
@@ -519,13 +533,15 @@ button.tile.used {
 }
 
 html[data-text-size="large"] .board {
-  grid-template-columns: repeat(15, minmax(2.3rem, 1fr));
-  grid-template-rows: repeat(15, minmax(2.3rem, 1fr));
+  grid-template-columns: repeat(15, 2.8rem);
+  grid-template-rows: repeat(15, 2.8rem);
 }
+html[data-text-size="large"] .cell .tile { font-size: 1.35rem; }
 html[data-text-size="xlarge"] .board {
-  grid-template-columns: repeat(15, minmax(2.7rem, 1fr));
-  grid-template-rows: repeat(15, minmax(2.7rem, 1fr));
+  grid-template-columns: repeat(15, 3.2rem);
+  grid-template-rows: repeat(15, 3.2rem);
 }
+html[data-text-size="xlarge"] .cell .tile { font-size: 1.55rem; }
 
 @media (prefers-contrast: more) {
   .cell.selected { outline-width: 4px; }
