@@ -1,0 +1,6 @@
+{
+  "ssh_host": "scrabble.elenmorell.com",
+  "ssh_user": "ubuntu",
+  "ssh_key": "/home/mjmor/mjmorell.pem",
+  "remote_path": "/var/www/scrabble/public_html"
+}
