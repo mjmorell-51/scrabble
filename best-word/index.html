@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Best Word — Scrabble Games</title>
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="site">
+      <a href="/">
+        <div class="logo">
+          <span class="tile">S<span class="pts">1</span></span>
+          <span class="tile">C<span class="pts">3</span></span>
+          <span class="tile">R<span class="pts">1</span></span>
+          <span class="tile">A<span class="pts">1</span></span>
+          <span class="tile">B<span class="pts">3</span></span>
+        </div>
+      </a>
+    </header>
+
+    <a class="back-link" href="/">&larr; Back home</a>
+
+    <main class="panel">
+      <h1 style="margin-top:0;">Best Word</h1>
+      <p class="hint" style="margin-top:-0.5rem;">Seven tiles. Find the highest-scoring word you can &mdash; then hit Hint to see the best one.</p>
+
+      <div class="mode-toggle" role="group" aria-label="Rack mode">
+        <button type="button" class="mode-btn active" data-mode="random">Random</button>
+        <button type="button" class="mode-btn" data-mode="guaranteed">Guaranteed Bingo</button>
+      </div>
+
+      <div class="rack" id="rack"></div>
+
+      <div class="bw-actions">
+        <button type="button" id="new-rack-btn">New Rack</button>
+        <button type="button" id="hint-btn">Hint</button>
+      </div>
+
+      <div class="result" id="result"></div>
+    </main>
+
+    <footer class="site">scrabble.elenmorell.com</footer>
+  </div>
+
+  <script src="/assets/bestword.js"></script>
+</body>
+</html>

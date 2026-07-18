@@ -254,6 +254,84 @@ main.panel {
   margin-top: 0.75rem;
 }
 
+.mode-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.mode-btn {
+  flex: 1;
+  min-width: 140px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0.55rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: var(--tile);
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.mode-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  opacity: 1;
+}
+
+.rack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  min-height: 3.4rem;
+  margin: 1.5rem 0;
+}
+
+.rack .tile {
+  width: 2.9rem;
+  height: 2.9rem;
+  font-size: 1.35rem;
+}
+
+.tile.blank {
+  background: linear-gradient(160deg, #efe6d0, #d9cba0);
+  color: var(--ink-soft);
+}
+
+.bw-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.bw-actions button {
+  flex: 1;
+  min-width: 120px;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.6rem 1.1rem;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: var(--accent-ink);
+  cursor: pointer;
+}
+
+.bw-actions button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.verdict .badge {
+  margin-left: 0.4rem;
+  vertical-align: middle;
+}
+
 footer.site {
   margin-top: 2.5rem;
   text-align: center;
