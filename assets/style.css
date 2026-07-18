@@ -124,6 +124,11 @@ header.site a {
   .card-grid { grid-template-columns: 1fr; }
 }
 
+html[data-text-size="large"] .card-grid,
+html[data-text-size="xlarge"] .card-grid {
+  grid-template-columns: 1fr;
+}
+
 .card {
   background: linear-gradient(160deg, var(--tile), #e8d9b5);
   color: var(--ink);
@@ -384,15 +389,17 @@ footer.site {
 }
 
 /* In the larger text modes, letters and point values should take up a bigger
-   share of each tile, not just scale up at the same ratio as the tile box. */
-html[data-text-size="large"] .logo .tile { font-size: 1.75rem; }
-html[data-text-size="xlarge"] .logo .tile { font-size: 2.1rem; }
+   share of each tile, not just scale up at the same ratio as the tile box.
+   The box has to grow along with the font (not stay fixed) or the letter and
+   the point-value badge collide/overflow the rounded corners. */
+html[data-text-size="large"] .logo .tile { width: 2.85rem; height: 2.85rem; font-size: 1.6rem; }
+html[data-text-size="xlarge"] .logo .tile { width: 3.3rem; height: 3.3rem; font-size: 2rem; }
 
-html[data-text-size="large"] .card .letter-tile { font-size: 1.9rem; }
-html[data-text-size="xlarge"] .card .letter-tile { font-size: 2.3rem; }
+html[data-text-size="large"] .card .letter-tile { width: 3.15rem; height: 3.15rem; font-size: 1.75rem; }
+html[data-text-size="xlarge"] .card .letter-tile { width: 3.6rem; height: 3.6rem; font-size: 2.15rem; }
 
-html[data-text-size="large"] .result-tiles .tile { font-size: 1.65rem; }
-html[data-text-size="xlarge"] .result-tiles .tile { font-size: 2rem; }
+html[data-text-size="large"] .result-tiles .tile { width: 2.75rem; height: 2.75rem; font-size: 1.55rem; }
+html[data-text-size="xlarge"] .result-tiles .tile { width: 3.15rem; height: 3.15rem; font-size: 1.9rem; }
 
 html[data-text-size="large"] .rack .tile { font-size: clamp(1.05rem, 8vw, 1.85rem); }
 html[data-text-size="xlarge"] .rack .tile { font-size: clamp(1.25rem, 9.5vw, 2.3rem); }
@@ -400,5 +407,5 @@ html[data-text-size="xlarge"] .rack .tile { font-size: clamp(1.25rem, 9.5vw, 2.3
 html[data-text-size="large"] .rack { grid-template-columns: repeat(auto-fit, minmax(3rem, 1fr)); }
 html[data-text-size="xlarge"] .rack { grid-template-columns: repeat(auto-fit, minmax(3.6rem, 1fr)); }
 
-html[data-text-size="large"] .pts { font-size: 0.6em; }
-html[data-text-size="xlarge"] .pts { font-size: 0.66em; }
+html[data-text-size="large"] .pts { font-size: 0.58em; }
+html[data-text-size="xlarge"] .pts { font-size: 0.62em; }
