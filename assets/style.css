@@ -382,3 +382,23 @@ footer.site {
   .card.disabled { opacity: 0.8; }
   main.panel { border-color: rgba(255,255,255,0.3); }
 }
+
+/* In the larger text modes, letters and point values should take up a bigger
+   share of each tile, not just scale up at the same ratio as the tile box. */
+html[data-text-size="large"] .logo .tile { font-size: 1.75rem; }
+html[data-text-size="xlarge"] .logo .tile { font-size: 2.1rem; }
+
+html[data-text-size="large"] .card .letter-tile { font-size: 1.9rem; }
+html[data-text-size="xlarge"] .card .letter-tile { font-size: 2.3rem; }
+
+html[data-text-size="large"] .result-tiles .tile { font-size: 1.65rem; }
+html[data-text-size="xlarge"] .result-tiles .tile { font-size: 2rem; }
+
+html[data-text-size="large"] .rack .tile { font-size: clamp(1.05rem, 8vw, 1.85rem); }
+html[data-text-size="xlarge"] .rack .tile { font-size: clamp(1.25rem, 9.5vw, 2.3rem); }
+
+html[data-text-size="large"] .rack { grid-template-columns: repeat(auto-fit, minmax(3rem, 1fr)); }
+html[data-text-size="xlarge"] .rack { grid-template-columns: repeat(auto-fit, minmax(3.6rem, 1fr)); }
+
+html[data-text-size="large"] .pts { font-size: 0.6em; }
+html[data-text-size="xlarge"] .pts { font-size: 0.66em; }
