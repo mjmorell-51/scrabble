@@ -3,27 +3,56 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>scrabble.elenmorell.com</title>
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      background: #1e1e2e;
-      color: #cdd6f4;
-    }
-    main { text-align: center; }
-    h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-    p { color: #a6adc8; }
-  </style>
+  <title>Scrabble Games</title>
+  <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
-  <main>
-    <h1>scrabble.elenmorell.com</h1>
-    <p>Site is set up and ready. Replace this file to get started.</p>
-  </main>
+  <div class="wrap">
+    <header class="site">
+      <a href="/">
+        <div class="logo">
+          <span class="tile">S<span class="pts">1</span></span>
+          <span class="tile">C<span class="pts">3</span></span>
+          <span class="tile">R<span class="pts">1</span></span>
+          <span class="tile">A<span class="pts">1</span></span>
+          <span class="tile">B<span class="pts">3</span></span>
+        </div>
+      </a>
+      <p class="tagline">Word games for word nerds.</p>
+    </header>
+
+    <main>
+      <div class="card-grid">
+        <a class="card" href="/lookup/">
+          <span class="tile letter-tile">W<span class="pts">4</span></span>
+          <h2>Look Up a Word</h2>
+          <p>Check whether a word is valid, straight from the NWL 2023 dictionary.</p>
+        </a>
+
+        <div class="card disabled">
+          <span class="tile letter-tile">B<span class="pts">3</span></span>
+          <span class="badge soon">Coming soon</span>
+          <h2>Best Word</h2>
+          <p>Give us seven tiles, get back the highest-scoring word.</p>
+        </div>
+
+        <div class="card disabled">
+          <span class="tile letter-tile">P<span class="pts">3</span></span>
+          <span class="badge soon">Coming soon</span>
+          <h2>Best Play</h2>
+          <p>See a board and seven tiles, find the best possible play.</p>
+        </div>
+
+        <div class="card disabled">
+          <span class="tile letter-tile">G<span class="pts">2</span></span>
+          <span class="badge soon">Coming soon</span>
+          <h2>Play a Game</h2>
+          <p>A full game against a friend or the computer.</p>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site">scrabble.elenmorell.com</footer>
+  </div>
 </body>
 </html>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Look Up a Word — Scrabble Games</title>
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="site">
+      <a href="/">
+        <div class="logo">
+          <span class="tile">S<span class="pts">1</span></span>
+          <span class="tile">C<span class="pts">3</span></span>
+          <span class="tile">R<span class="pts">1</span></span>
+          <span class="tile">A<span class="pts">1</span></span>
+          <span class="tile">B<span class="pts">3</span></span>
+        </div>
+      </a>
+    </header>
+
+    <a class="back-link" href="/">&larr; Back home</a>
+
+    <main class="panel">
+      <h1 style="margin-top:0;">Look Up a Word</h1>
+      <p class="hint" style="margin-top:-0.5rem;">Checked against the official NWL 2023 dictionary.</p>
+
+      <form class="lookup-form" id="lookup-form" autocomplete="off">
+        <input
+          type="text"
+          id="word-input"
+          name="word"
+          maxlength="15"
+          pattern="[A-Za-z]+"
+          placeholder="Enter a word"
+          required
+          autofocus
+        >
+        <button type="submit" id="lookup-btn">Check</button>
+      </form>
+
+      <div class="result" id="result"></div>
+    </main>
+
+    <footer class="site">scrabble.elenmorell.com</footer>
+  </div>
+
+  <script src="/assets/lookup.js"></script>
+</body>
+</html>
