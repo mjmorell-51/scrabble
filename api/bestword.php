@@ -87,6 +87,34 @@ function scoreWord(string $word, array $rackCounts): ?int {
     return $score;
 }
 
+/**
+ * Returns [WORD => score] for every dictionary word (length 1-7) that can be
+ * formed from the given rack.
+ */
+function computeValidWords(array $rackCounts, array $dictionary): array {
+    $valid = [];
+    foreach ($dictionary as $word) {
+        $len = strlen($word);
+        if ($len === 0 || $len > 7) {
+            continue;
+        }
+        $upper = strtoupper($word);
+        $score = scoreWord($upper, $rackCounts);
+        if ($score !== null) {
+            $valid[$upper] = $score;
+        }
+    }
+    return $valid;
+}
+
+function parseRackParam(): array {
+    $rackStr = strtoupper(trim((string) ($_GET['rack'] ?? '')));
+    if (!preg_match('/^[A-Z_]{7}$/', $rackStr)) {
+        respond(400, ['error' => 'Rack must be exactly 7 letters (use _ for a blank).']);
+    }
+    return letterCounts($rackStr);
+}
+
 $action = $_GET['action'] ?? 'deal';
 
 if ($action === 'deal') {
@@ -123,37 +151,62 @@ if ($action === 'deal') {
 }
 
 if ($action === 'hint') {
-    $rackStr = strtoupper(trim((string) ($_GET['rack'] ?? '')));
-    if (!preg_match('/^[A-Z_]{7}$/', $rackStr)) {
-        respond(400, ['error' => 'Rack must be exactly 7 letters (use _ for a blank).']);
-    }
+    $rackCounts = parseRackParam();
+    $validWords = computeValidWords($rackCounts, loadDictionary());
 
-    $rackCounts = letterCounts($rackStr);
-    $dictionary = loadDictionary();
-
-    $bestWord = null;
-    $bestScore = -1;
-
-    foreach ($dictionary as $word) {
-        $len = strlen($word);
-        if ($len === 0 || $len > 7) {
-            continue;
-        }
-        $score = scoreWord(strtoupper($word), $rackCounts);
-        if ($score !== null && $score > $bestScore) {
-            $bestScore = $score;
-            $bestWord = strtoupper($word);
-        }
-    }
-
-    if ($bestWord === null) {
+    if (empty($validWords)) {
         respond(200, ['word' => null, 'score' => 0, 'bingo' => false]);
     }
+
+    $bestScore = max($validWords);
+    $bestWord = array_search($bestScore, $validWords, true);
 
     respond(200, [
         'word' => $bestWord,
         'score' => $bestScore,
         'bingo' => strlen($bestWord) === 7,
+    ]);
+}
+
+if ($action === 'guess') {
+    $rackCounts = parseRackParam();
+
+    $userWord = strtoupper(trim((string) ($_GET['word'] ?? '')));
+    if (!preg_match('/^[A-Z]{1,15}$/', $userWord)) {
+        respond(400, ['error' => 'Enter a word using letters A-Z only.']);
+    }
+
+    $validWords = computeValidWords($rackCounts, loadDictionary());
+    $totalValid = count($validWords);
+
+    if ($totalValid === 0) {
+        respond(200, [
+            'valid' => false, 'word' => $userWord, 'score' => 0, 'rank' => null,
+            'totalValid' => 0, 'bestWord' => null, 'bestScore' => 0,
+        ]);
+    }
+
+    $bestScore = max($validWords);
+    $bestWord = array_search($bestScore, $validWords, true);
+
+    if (!array_key_exists($userWord, $validWords)) {
+        respond(200, [
+            'valid' => false, 'word' => $userWord, 'score' => 0, 'rank' => null,
+            'totalValid' => $totalValid, 'bestWord' => $bestWord, 'bestScore' => $bestScore,
+        ]);
+    }
+
+    $userScore = $validWords[$userWord];
+    $better = 0;
+    foreach ($validWords as $score) {
+        if ($score > $userScore) {
+            $better++;
+        }
+    }
+
+    respond(200, [
+        'valid' => true, 'word' => $userWord, 'score' => $userScore, 'rank' => $better + 1,
+        'totalValid' => $totalValid, 'bestWord' => $bestWord, 'bestScore' => $bestScore,
     ]);
 }
 

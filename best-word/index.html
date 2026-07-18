@@ -33,6 +33,19 @@
 
       <div class="rack" id="rack"></div>
 
+      <form class="lookup-form" id="guess-form" autocomplete="off">
+        <input
+          type="text"
+          id="guess-input"
+          name="guess"
+          maxlength="7"
+          pattern="[A-Za-z]+"
+          placeholder="Type your word"
+          autocomplete="off"
+        >
+        <button type="submit" id="guess-btn">Submit</button>
+      </form>
+
       <div class="bw-actions">
         <button type="button" id="new-rack-btn">New Rack</button>
         <button type="button" id="hint-btn">Hint</button>

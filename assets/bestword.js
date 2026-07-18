@@ -9,9 +9,18 @@ const resultEl = document.getElementById('result');
 const newRackBtn = document.getElementById('new-rack-btn');
 const hintBtn = document.getElementById('hint-btn');
 const modeBtns = document.querySelectorAll('.mode-btn');
+const guessForm = document.getElementById('guess-form');
+const guessInput = document.getElementById('guess-input');
+const guessBtn = document.getElementById('guess-btn');
 
 let mode = 'random';
 let currentRack = [];
+
+function ordinal(n) {
+  const suffixes = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return n + (suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0]);
+}
 
 function tileHtml(letter) {
   const isBlank = letter === '_';
@@ -24,35 +33,41 @@ function renderRack(rack) {
   rackEl.innerHTML = rack.map(tileHtml).join('');
 }
 
+function setControlsEnabled(enabled) {
+  newRackBtn.disabled = !enabled;
+  hintBtn.disabled = !enabled;
+  guessBtn.disabled = !enabled;
+  guessInput.disabled = !enabled;
+}
+
 async function dealRack() {
-  hintBtn.disabled = true;
-  newRackBtn.disabled = true;
+  setControlsEnabled(false);
   resultEl.innerHTML = '';
-  rackEl.innerHTML = '<p class="hint">Drawing tiles&hellip;</p>';
+  guessInput.value = '';
+  rackEl.innerHTML = '';
+  resultEl.innerHTML = '<p class="hint">Drawing tiles&hellip;</p>';
 
   try {
     const response = await fetch(`/api/bestword.php?action=deal&mode=${encodeURIComponent(mode)}`);
     const data = await response.json();
 
     if (!response.ok) {
-      rackEl.innerHTML = '';
       resultEl.innerHTML = `<span class="verdict error">${data.error || 'Something went wrong.'}</span>`;
       return;
     }
 
     currentRack = data.rack;
     renderRack(currentRack);
+    resultEl.innerHTML = '';
   } catch (err) {
-    rackEl.innerHTML = '';
     resultEl.innerHTML = '<span class="verdict error">Could not reach the server. Try again.</span>';
   } finally {
-    newRackBtn.disabled = false;
-    hintBtn.disabled = false;
+    setControlsEnabled(true);
   }
 }
 
 async function showHint() {
-  hintBtn.disabled = true;
+  setControlsEnabled(false);
   resultEl.innerHTML = '<p class="hint">Thinking&hellip;</p>';
 
   try {
@@ -75,8 +90,69 @@ async function showHint() {
   } catch (err) {
     resultEl.innerHTML = '<span class="verdict error">Could not reach the server. Try again.</span>';
   } finally {
-    hintBtn.disabled = false;
+    setControlsEnabled(true);
   }
+}
+
+async function submitGuess(event) {
+  event.preventDefault();
+  const word = guessInput.value.trim();
+  if (!word) return;
+
+  setControlsEnabled(false);
+  resultEl.innerHTML = renderGuessTiles(word) + '<p class="hint">Checking&hellip;</p>';
+
+  try {
+    const rackParam = currentRack.join('');
+    const response = await fetch(
+      `/api/bestword.php?action=guess&rack=${encodeURIComponent(rackParam)}&word=${encodeURIComponent(word)}`
+    );
+    const data = await response.json();
+
+    if (!response.ok) {
+      resultEl.innerHTML = renderGuessTiles(word) +
+        `<span class="verdict error">${data.error || 'Something went wrong.'}</span>`;
+      return;
+    }
+
+    resultEl.innerHTML = renderGuessTiles(word) + buildGuessMessage(data);
+  } catch (err) {
+    resultEl.innerHTML = renderGuessTiles(word) +
+      '<span class="verdict error">Could not reach the server. Try again.</span>';
+  } finally {
+    setControlsEnabled(true);
+  }
+}
+
+function renderGuessTiles(word) {
+  const tiles = [...word.toUpperCase()]
+    .map((letter) => {
+      const pts = LETTER_POINTS[letter] ?? '';
+      return `<span class="tile">${letter}<span class="pts">${pts}</span></span>`;
+    })
+    .join('');
+  return `<div class="result-tiles">${tiles}</div>`;
+}
+
+function buildGuessMessage(data) {
+  if (data.totalValid === 0) {
+    return '<span class="verdict invalid">There were no valid words from this rack.</span>';
+  }
+
+  if (!data.valid) {
+    return `<span class="verdict invalid">${data.word} isn't a valid play from this rack.</span>` +
+      `<p class="hint">There were ${data.totalValid} valid words. The best was ` +
+      `${data.bestWord} for ${data.bestScore} points.</p>`;
+  }
+
+  if (data.rank === 1) {
+    return `<span class="verdict valid">${data.word} scored ${data.score} points &mdash; ` +
+      `that's the best possible word out of ${data.totalValid} valid words!</span>`;
+  }
+
+  return `<span class="verdict valid">${data.word} scored ${data.score} points.</span>` +
+    `<p class="hint">There were ${data.totalValid} valid words. You picked the ${ordinal(data.rank)} best. ` +
+    `The best word was ${data.bestWord} for ${data.bestScore} points.</p>`;
 }
 
 modeBtns.forEach((btn) => {
@@ -91,5 +167,6 @@ modeBtns.forEach((btn) => {
 
 newRackBtn.addEventListener('click', dealRack);
 hintBtn.addEventListener('click', showHint);
+guessForm.addEventListener('submit', submitGuess);
 
 dealRack();
