@@ -83,10 +83,12 @@
     return pendingPlacements.find((p) => p.r === r && p.c === c) || board[`${r},${c}`] || null;
   }
 
+  // Only used for board tiles, which (unlike an unassigned '_' rack tile) always
+  // have a specific letter chosen for them -- show it even when blank, so the
+  // player can see what letter a blank on the board was played as.
   function tileHtml(letter, isBlank) {
-    const display = isBlank ? '' : letter;
     const pts = isBlank ? 0 : (LETTER_POINTS[letter] ?? 0);
-    return `<span class="tile${isBlank ? ' blank' : ''}">${display}<span class="pts">${pts}</span></span>`;
+    return `<span class="tile${isBlank ? ' blank' : ''}">${letter}<span class="pts">${pts}</span></span>`;
   }
 
   function renderBoard() {
@@ -112,10 +114,10 @@
         } else if (code !== '.') {
           inner = `<span class="premium-label">${PREMIUM_LABEL[code]}</span>`;
         }
-        // Once a start square is chosen, tapping cells does nothing further (the word
-        // comes from the text input or from tapping rack tiles) -- disable them so
-        // that's not a dead, confusing tap target.
-        const cellDisabled = !!tile || !!selectedStart;
+        // Cells stay tappable (to re-pick a start square) until a tile has actually
+        // been placed this turn -- after that, the word comes from the text input or
+        // from tapping rack tiles, so further cell taps would be dead and confusing.
+        const cellDisabled = !!tile || turnLocked();
         html += `<button type="button" class="${classes.join(' ')}" data-r="${r}" data-c="${c}" aria-label="Row ${r + 1}, column ${c + 1}" ${cellDisabled ? 'disabled' : ''}>${inner}</button>`;
       }
     }
@@ -134,13 +136,19 @@
     }).join('');
   }
 
+  // Mode/direction only need to lock once a tile has actually been placed --
+  // picking (or re-picking) a start square shouldn't require a Clear first.
+  function turnLocked() {
+    return pendingPlacements.length > 0;
+  }
+
   function updateModeUI() {
     modeBtns.forEach((btn) => btn.classList.toggle('active', btn.dataset.mode === mode));
     dirBtns.forEach((btn) => btn.classList.toggle('active', btn.dataset.dir === direction));
     typeForm.hidden = mode !== 'type';
     placeActionsEl.hidden = mode !== 'place';
-    modeBtns.forEach((btn) => { btn.disabled = !!selectedStart; });
-    dirBtns.forEach((btn) => { btn.disabled = !!selectedStart; });
+    modeBtns.forEach((btn) => { btn.disabled = turnLocked(); });
+    dirBtns.forEach((btn) => { btn.disabled = turnLocked(); });
   }
 
   function render() {
@@ -169,7 +177,7 @@
   }
 
   function onCellClick(r, c) {
-    if (selectedStart || isOccupied(r, c)) {
+    if (turnLocked() || isOccupied(r, c)) {
       return;
     }
     selectedStart = { r, c };
@@ -358,7 +366,7 @@
 
   modeBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
-      if (btn.classList.contains('active') || selectedStart) return;
+      if (btn.classList.contains('active') || turnLocked()) return;
       mode = btn.dataset.mode;
       updateModeUI();
       renderRack();
@@ -367,8 +375,11 @@
 
   dirBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
-      if (btn.classList.contains('active') || selectedStart) return;
+      if (btn.classList.contains('active') || turnLocked()) return;
       direction = btn.dataset.dir;
+      if (selectedStart) {
+        cursor = nextEmptyFrom(selectedStart.r, selectedStart.c, direction);
+      }
       updateModeUI();
     });
   });

@@ -43,6 +43,13 @@ body {
   margin: 0 auto;
 }
 
+/* The 15x15 board needs more room than this site's usual narrow single-column
+   pages -- at 640px it fell a few px short of fitting inside main.panel's own
+   padding, clipping the last column and forcing an unwanted scroll on desktop. */
+.wrap.wrap-wide {
+  max-width: 720px;
+}
+
 header.site {
   text-align: center;
   margin-bottom: 2rem;
@@ -316,6 +323,15 @@ main.panel {
   border-color: var(--accent);
   color: var(--accent-ink);
   opacity: 1;
+}
+
+.mode-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.mode-btn.active:disabled {
+  opacity: 0.7;
 }
 
 .rack {
