@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quizzes — Scrabble Games</title>
+  <link rel="stylesheet" href="/assets/style.css?v=6">
+  <script src="/assets/a11y.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <header class="site">
+      <a href="/">
+        <div class="logo">
+          <span class="tile">C<span class="pts">3</span></span>
+          <span class="tile">B<span class="pts">3</span></span>
+          <span class="tile">S<span class="pts">1</span></span>
+        </div>
+      </a>
+    </header>
+
+    <a class="back-link" href="/">&larr; Back home</a>
+
+    <main class="panel">
+      <h1 style="margin-top:0;">Quizzes</h1>
+      <p class="hint" style="margin-top:-0.5rem;">Is it a word? Test yourself against the NWL 2023 dictionary.</p>
+
+      <!-- Setup screen -->
+      <form class="quiz-setup" id="quiz-setup" autocomplete="off">
+        <label class="quiz-field">
+          <span>How many letters?</span>
+          <select id="letters-select" name="letters">
+            <option value="2">2 letters</option>
+            <option value="3">3 letters</option>
+            <option value="4" selected>4 letters</option>
+            <option value="5">5 letters</option>
+            <option value="6">6 letters</option>
+            <option value="7">7 letters</option>
+            <option value="8">8 letters</option>
+          </select>
+        </label>
+        <label class="quiz-field">
+          <span>How many questions?</span>
+          <select id="count-select" name="count">
+            <option value="5">5 questions</option>
+            <option value="10" selected>10 questions</option>
+            <option value="15">15 questions</option>
+            <option value="20">20 questions</option>
+          </select>
+        </label>
+        <button type="submit" id="start-btn">Start Quiz</button>
+      </form>
+
+      <!-- Quiz screen -->
+      <div id="quiz-play" hidden>
+        <p class="hint" id="progress"></p>
+        <div class="result-tiles" id="question-tiles"></div>
+        <p class="quiz-prompt">Is this a word?</p>
+        <div class="mode-toggle" id="answer-buttons">
+          <button type="button" class="mode-btn" id="yes-btn">Yes</button>
+          <button type="button" class="mode-btn" id="no-btn">No</button>
+        </div>
+        <div class="result" id="feedback"></div>
+        <div class="bw-actions" id="next-row" hidden>
+          <button type="button" id="next-btn">Next</button>
+        </div>
+      </div>
+
+      <!-- Results screen -->
+      <div id="quiz-done" hidden>
+        <div class="result" id="score-result"></div>
+        <div class="bw-actions">
+          <button type="button" id="again-btn">New Quiz</button>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site">scrabble.elenmorell.com</footer>
+  </div>
+
+  <script src="/assets/quiz.js"></script>
+</body>
+</html>

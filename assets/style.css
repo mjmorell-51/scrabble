@@ -640,3 +640,61 @@ html[data-text-size="xlarge"] .cell .tile { font-size: 1.55rem; }
   .cell.selected { outline-width: 4px; }
   .cell.dl, .cell.tl, .cell.dw, .cell.tw, .cell.star { border: 1px solid rgba(255,255,255,0.5); }
 }
+
+/* Quizzes: setup dropdowns + question prompt */
+.quiz-setup {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  max-width: 22rem;
+}
+
+/* Author display:flex above beats the UA [hidden] rule (equal specificity), so the
+   setup form kept showing during the quiz -- same gotcha as .bw-actions[hidden]. */
+.quiz-setup[hidden] {
+  display: none;
+}
+
+.quiz-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-weight: 700;
+  color: var(--tile);
+}
+
+.quiz-field select {
+  font-size: 1.05rem;
+  padding: 0.6rem 0.75rem;
+  min-height: 2.75rem;
+  border-radius: 8px;
+  border: none;
+  background: var(--tile);
+  color: var(--ink);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.quiz-setup button {
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.7rem 1.1rem;
+  min-height: 2.75rem;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: var(--accent-ink);
+  cursor: pointer;
+  margin-top: 0.3rem;
+}
+
+.quiz-setup button:disabled { opacity: 0.6; cursor: default; }
+
+.quiz-prompt {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--tile);
+  margin: 0.5rem 0 1rem;
+}
+
+#question-tiles { margin-bottom: 0.4rem; }

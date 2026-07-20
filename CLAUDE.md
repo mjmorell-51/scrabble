@@ -81,13 +81,22 @@ matters once "Best Play" exists.
 
 ## File map
 
-- `index.html` — home page, 4 feature cards (active ones link out, others show a
-  "Coming soon" badge).
+- `index.html` — home page, 4 feature cards (Look Up a Word, Quizzes, Best Word, Best
+  Play), all active and linking out. The `.card.disabled`/`.badge.soon` "Coming soon"
+  styling still exists in the CSS for future use, but no card currently uses it.
 - `assets/style.css` — shared stylesheet. Scrabble-tile visual language (`.tile`/`.pts`)
   is reused everywhere: logo, home cards, rack tiles, result tiles. Keep new features
   visually consistent with this instead of inventing new components.
 - `lookup/index.html` + `assets/lookup.js` + `api/lookup.php` — "Look Up a Word":
   validates a single word against the dictionary.
+- `quiz/index.html` + `assets/quiz.js` + `api/quiz.php` — "Quizzes": pick a word length
+  (m, 2–8) and a number of questions (n, 5–20) from two dropdowns, then take an
+  n-question "Is this a word?" drill. `api/quiz.php?action=new&letters=m&count=n` returns
+  `{questions:[{tiles,isWord}, ...]}` — a roughly even mix of real m-letter NWL words and
+  plausible fakes (a real word with one letter mutated so it's no longer in the dict).
+  Answers ride along and the client grades locally (self-quiz, no server session), one
+  question at a time with per-question feedback, then a final score. The whole page is
+  three `[hidden]`-toggled screens (setup / play / done) in one HTML file.
 - `best-word/index.html` + `assets/bestword.js` + `api/bestword.php` — "Best Word":
   deals a 7-tile rack (random, or "guaranteed bingo" by picking a real dictionary word
   that fits the standard tile counts and shuffling its letters), lets the user type a
@@ -118,14 +127,22 @@ matters once "Best Play" exists.
   against the live site after deploy.
 - `assets/style.css` is linked from every page with a `?v=N` cache-busting query string
   (no `Cache-Control`/`ETag` invalidation otherwise, so browsers can silently keep
-  serving a stale copy after a deploy). Bump `N` in all four HTML files whenever
-  `style.css` changes.
+  serving a stale copy after a deploy). Bump `N` in all HTML files (currently five)
+  whenever `style.css` changes.
+- The UA `[hidden]` rule is only `display:none` at UA-stylesheet strength, so any author
+  rule that sets `display` on the same element (equal specificity, author wins) will keep
+  a `hidden` element visible. Whenever a `.class` sets `display:` AND its element also
+  gets toggled via the `hidden` attribute (e.g. `.bw-actions`, `.lookup-form`,
+  `.quiz-setup`), add an explicit `.class[hidden] { display: none }`. This has bitten
+  this project three times.
 
 ## Feature status
 
 1. **Look Up a Word** — done.
-2. **Best Word** — done (random/guaranteed-bingo modes, hint, guess-and-rank).
-3. **Best Play** — done. Given a seeded 4-word board + a 7-tile rack, the user picks a
+2. **Quizzes** — done. Two-dropdown setup (word length + question count), then an
+   n-question "Is this a word?" drill with per-question feedback and a final score.
+3. **Best Word** — done (random/guaranteed-bingo modes, hint, guess-and-rank).
+4. **Best Play** — done. Given a seeded 4-word board + a 7-tile rack, the user picks a
    start square + direction and plays a word (typed, or tile-by-tile then "Done"), then
    sees their score/rank vs. every legal play and can "Show Best". Two board modes:
    "Random Board" (leftover bag tiles) and "Bingoable Board" (rack guaranteed to have at
@@ -134,5 +151,3 @@ matters once "Best Play" exists.
    generation is anchor-square + binary-search prefix pruning over the sorted dictionary
    (no GADDAG); fast enough (well under 100ms typical, ~0.3s median for bingoable-board
    generation).
-4. **Play a Game** — not started, deliberately last. Currently a disabled "Coming soon"
-   card on the home page.
