@@ -80,6 +80,10 @@ matters once "Best Play" exists.
 - Always test new PHP endpoints locally (`php -S 127.0.0.1:PORT`) before deploying, but
   remember the dev server can't confirm dot-path protection (see above) — do that check
   against the live site after deploy.
+- `assets/style.css` is linked from every page with a `?v=N` cache-busting query string
+  (no `Cache-Control`/`ETag` invalidation otherwise, so browsers can silently keep
+  serving a stale copy after a deploy). Bump `N` in all four HTML files whenever
+  `style.css` changes.
 
 ## Feature status
 
