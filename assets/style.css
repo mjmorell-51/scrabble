@@ -217,6 +217,7 @@ main.panel {
 .lookup-form {
   display: flex;
   gap: 0.6rem;
+  margin-bottom: 0.75rem;
 }
 
 .lookup-form input[type="text"] {
