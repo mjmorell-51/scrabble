@@ -145,6 +145,14 @@ if ($action === 'deal') {
         $word = $candidates[array_rand($candidates)];
         $rack = str_split($word);
         shuffle($rack);
+
+        // A bingo rack is the exact letters of a real word, so it would otherwise never
+        // contain a blank. Give one the same ~13.6% per-rack chance it has in a random
+        // 7-tile draw (2 blanks in a 100-tile bag), rolled independently each deal. The
+        // blank stands in for the tile it replaces, so the rack still spells the bingo.
+        if (random_int(1, 1000) <= 136) {
+            $rack[random_int(0, 6)] = '_';
+        }
     }
 
     respond(200, ['mode' => $mode, 'rack' => $rack]);
