@@ -76,6 +76,17 @@ function letterCounts(string $word): array {
     return $counts;
 }
 
+// True if a real 100-tile bag could actually supply these letters (used to reject
+// bingo-word candidates that need, e.g., three of a letter there are only two of).
+function fitsDistribution(array $counts): bool {
+    foreach ($counts as $letter => $n) {
+        if ((DISTRIBUTION[$letter] ?? 0) < $n) {
+            return false;
+        }
+    }
+    return true;
+}
+
 // $dict must already be sorted (loadDictionary()'s file() read preserves the
 // dictionary file's own alphabetical order) -- these are plain binary searches,
 // standing in for a trie/GADDAG without needing to build or cache one.
@@ -617,7 +628,10 @@ function scorePlacement(array $board, array $dict, array $newTiles): ?array {
 // bag each time and picking uniformly at random among whatever legal plays are found,
 // rather than favoring the best one. Guarantees every seed board is a real, fully
 // legal sequence of dictionary plays.
-function generateStartingBoard(array $dict, array $leftDict): array {
+// Builds a random 4-word board by dealing successive racks from a fresh bag and
+// playing a random legal move each time. Returns [$board, $leftoverBag] or null if it
+// couldn't place all 4 words within its attempt budget (caller can just retry).
+function generateSeedBoard(array $dict, array $leftDict): ?array {
     $bag = buildBag();
     shuffle($bag);
     $board = buildEmptyBoard();
@@ -646,13 +660,88 @@ function generateStartingBoard(array $dict, array $leftDict): array {
     }
 
     if ($wordsPlaced < 4) {
-        respond(500, ['error' => 'Could not generate a starting board.']);
+        return null;
     }
 
-    $rackCount = min(7, count($bag));
-    $rack = array_slice($bag, 0, $rackCount);
+    return [$board, $bag];
+}
 
-    return [$board, $rack];
+// Every 7-letter dictionary word whose letters a real bag could supply -- the same
+// candidate pool Best Word's "guaranteed bingo" mode draws from. Built once per request.
+function bingoWordCandidates(array $dict): array {
+    $candidates = [];
+    foreach ($dict as $word) {
+        if (strlen($word) !== 7) {
+            continue;
+        }
+        $upper = strtoupper($word);
+        if (fitsDistribution(letterCounts($upper))) {
+            $candidates[] = $upper;
+        }
+    }
+    return $candidates;
+}
+
+// Given a fixed board, finds a 7-letter rack that is guaranteed to have at least one
+// bingo (7-tile play) somewhere on it, and returns those 7 letters shuffled -- or null
+// if no candidate word panned out within the try budget. We test each candidate by
+// asking legalMoves whether its exact letters can form ANY bingo on this board (an
+// anagram in any spot counts -- the player holds those tiles, so any 7-tile play the
+// tiles admit is one they can make), which makes each candidate far likelier to hit
+// than requiring that one specific word be playable.
+function findBingoRack(array $board, array $dict, array $leftDict, array $candidates, int $tryCap = 60): ?array {
+    if (empty($candidates)) {
+        return null;
+    }
+    $order = array_keys($candidates);
+    shuffle($order);
+    $tries = 0;
+    foreach ($order as $idx) {
+        if ($tries >= $tryCap) {
+            break;
+        }
+        $tries++;
+        $word = $candidates[$idx];
+        $moves = legalMoves($board, letterCounts($word), $dict, $leftDict);
+        foreach ($moves as $m) {
+            if ($m['bingo']) {
+                $rack = str_split($word);
+                shuffle($rack);
+                return $rack;
+            }
+        }
+    }
+    return null;
+}
+
+// Assembles a starting board + rack for the given mode:
+//  - 'random':    the leftover tiles from board generation, exactly as before.
+//  - 'bingoable': a rack whose letters are guaranteed to have a bingo on the board.
+// 'bingoable' may reject an otherwise-fine board that happens to admit no easy bingo and
+// regenerate; both modes retry board generation a bounded number of times.
+function generateStartingBoard(array $dict, array $leftDict, string $mode): array {
+    $candidates = $mode === 'bingoable' ? bingoWordCandidates($dict) : [];
+
+    for ($boardAttempt = 0; $boardAttempt < 12; $boardAttempt++) {
+        $seed = generateSeedBoard($dict, $leftDict);
+        if ($seed === null) {
+            continue;
+        }
+        [$board, $bag] = $seed;
+
+        if ($mode === 'bingoable') {
+            $rack = findBingoRack($board, $dict, $leftDict, $candidates);
+            if ($rack === null) {
+                continue;
+            }
+            return [$board, $rack];
+        }
+
+        $rackCount = min(7, count($bag));
+        return [$board, array_slice($bag, 0, $rackCount)];
+    }
+
+    respond(500, ['error' => 'Could not generate a starting board.']);
 }
 
 function validatePlacementGeometry(array $board, array $placements): void {
@@ -740,12 +829,22 @@ function primaryWord(array $words): ?string {
     return $words[0]['word'];
 }
 
+// Allow this file to be included purely for its functions (e.g. a CLI test harness)
+// without running the request dispatch below.
+if (defined('BESTPLAY_LIB_ONLY')) {
+    return;
+}
+
 $action = $_GET['action'] ?? '';
 
 if ($action === 'new') {
+    $mode = $_GET['mode'] ?? 'random';
+    if (!in_array($mode, ['random', 'bingoable'], true)) {
+        respond(400, ['error' => 'Invalid mode.']);
+    }
     $dict = loadDictionary();
     $leftDict = buildLeftDict($dict);
-    [$board, $rack] = generateStartingBoard($dict, $leftDict);
+    [$board, $rack] = generateStartingBoard($dict, $leftDict, $mode);
     respond(200, ['board' => flattenBoard($board), 'rack' => $rack]);
 }
 

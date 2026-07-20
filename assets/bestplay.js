@@ -47,7 +47,8 @@
   const doneBtn = document.getElementById('done-btn');
   const clearBtn = document.getElementById('clear-btn');
   const showBestBtn = document.getElementById('show-best-btn');
-  const newBoardBtn = document.getElementById('new-board-btn');
+  const randomBoardBtn = document.getElementById('random-board-btn');
+  const bingoBoardBtn = document.getElementById('bingo-board-btn');
   const blankPickerEl = document.getElementById('blank-picker');
   const modeBtns = Array.from(document.querySelectorAll('.mode-btn[data-mode]'));
   const dirBtns = Array.from(document.querySelectorAll('.mode-btn[data-dir]'));
@@ -173,7 +174,7 @@
   }
 
   function setControlsEnabled(enabled) {
-    [typeInput, typeSubmitBtn, doneBtn, clearBtn, showBestBtn, newBoardBtn, ...modeBtns, ...dirBtns].forEach((el) => {
+    [typeInput, typeSubmitBtn, doneBtn, clearBtn, showBestBtn, randomBoardBtn, bingoBoardBtn, ...modeBtns, ...dirBtns].forEach((el) => {
       el.disabled = !enabled;
     });
     if (enabled) {
@@ -388,11 +389,13 @@
     return words.reduce((a, b) => (a.word.length >= b.word.length ? a : b)).word;
   }
 
-  async function newBoard() {
+  async function newBoard(mode = 'random') {
     setControlsEnabled(false);
-    resultEl.innerHTML = '<p class="hint">Dealing a new board...</p>';
+    resultEl.innerHTML = mode === 'bingoable'
+      ? '<p class="hint">Dealing a board with a bingo to find...</p>'
+      : '<p class="hint">Dealing a new board...</p>';
     try {
-      const response = await fetch('/api/bestplay.php?action=new');
+      const response = await fetch(`/api/bestplay.php?action=new&mode=${mode}`);
       const data = await response.json();
       if (!response.ok) {
         showResultError(data.error || 'Could not deal a new board.');
@@ -486,7 +489,8 @@
   });
 
   showBestBtn.addEventListener('click', showBest);
-  newBoardBtn.addEventListener('click', newBoard);
+  randomBoardBtn.addEventListener('click', () => newBoard('random'));
+  bingoBoardBtn.addEventListener('click', () => newBoard('bingoable'));
 
-  newBoard();
+  newBoard('random');
 })();

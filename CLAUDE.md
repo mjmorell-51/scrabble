@@ -65,6 +65,14 @@ matters once "Best Play" exists.
   that fits the standard tile counts and shuffling its letters), lets the user type a
   guess and see its score/rank against every valid word the rack can form, or just ask
   for a hint (the single best word).
+- `best-play/index.html` + `assets/bestplay.js` + `api/bestplay.php` — "Best Play":
+  full 15×15 board with premium squares, seeded with 4 real words. `api/bestplay.php`
+  actions: `new` (`mode=random|bingoable`, deals board+rack), `score` (POST, scores a
+  submitted play + reports rank/best), `best` (POST, returns the single best play's exact
+  tile placements). The move generator (`legalMoves`) is reused for scoring, seed-board
+  generation, and bingoable-rack finding. `bestplay.php` can be `require`d with
+  `BESTPLAY_LIB_ONLY` defined to load its functions without running the request dispatch
+  (for CLI test/timing harnesses).
 
 ## Conventions / gotchas
 
@@ -89,8 +97,14 @@ matters once "Best Play" exists.
 
 1. **Look Up a Word** — done.
 2. **Best Word** — done (random/guaranteed-bingo modes, hint, guess-and-rank).
-3. **Best Play** — not started. Given a board + 7 tiles, find the best-scoring legal
-   play. Will need board state, cross-word validation, and letter/word multipliers —
-   meaningfully more complex than Best Word.
+3. **Best Play** — done. Given a seeded 4-word board + a 7-tile rack, the user picks a
+   start square + direction and plays a word (typed, or tile-by-tile then "Done"), then
+   sees their score/rank vs. every legal play and can "Show Best". Two board modes:
+   "Random Board" (leftover bag tiles) and "Bingoable Board" (rack guaranteed to have at
+   least one 7-tile bingo somewhere on the board — found by testing 7-letter dictionary
+   words against the board via `legalMoves`, otherwise still random-feeling). Move
+   generation is anchor-square + binary-search prefix pruning over the sorted dictionary
+   (no GADDAG); fast enough (well under 100ms typical, ~0.3s median for bingoable-board
+   generation).
 4. **Play a Game** — not started, deliberately last. Currently a disabled "Coming soon"
    card on the home page.
