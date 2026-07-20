@@ -315,9 +315,15 @@
         return;
       }
       resultEl.innerHTML = buildPlayMessage(data);
-      if (data.bestWord) {
-        Definitions.show(resultEl, data.bestWord);
+      // Define every word the play formed, plus the best possible word when it differs.
+      const defWords = [];
+      if (data.valid && Array.isArray(data.words)) {
+        data.words.forEach((w) => defWords.push(w.word));
       }
+      if (data.bestWord) {
+        defWords.push(data.bestWord);
+      }
+      Definitions.showWords(resultEl, defWords);
       if (data.valid) {
         placements.forEach((p) => {
           board[`${p.r},${p.c}`] = { r: p.r, c: p.c, letter: p.letter, blank: p.blank };
@@ -379,7 +385,7 @@
         valid: true, words: data.words, score: data.score, bingo: data.bingo,
         rank: 1, totalValid: 1, bestWord: primaryWordOf(data.words), bestScore: data.score,
       });
-      Definitions.show(resultEl, primaryWordOf(data.words));
+      Definitions.showWords(resultEl, data.words.map((w) => w.word));
       render();
     } catch (err) {
       showResultError('Could not reach the server. Try again.');

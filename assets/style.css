@@ -325,6 +325,15 @@ main.panel {
   border-left-color: var(--ink-soft);
 }
 
+/* A root word pulled from a cross-reference definition ("plural of erbium" -> erbium),
+   shown indented just beneath the word that referenced it. */
+.definition.root {
+  margin-top: 0.35rem;
+  margin-left: 1.1rem;
+  font-size: 0.86rem;
+  border-left-color: var(--ink-soft);
+}
+
 .attribution {
   display: block;
   margin-top: 0.35rem;
