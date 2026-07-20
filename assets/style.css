@@ -343,12 +343,16 @@ main.panel {
 
 .rack {
   display: grid;
-  /* auto-fit + a real minmax floor (not 0) means tiles shrink to fit 7 across
-     on a normal-size narrow phone, but if text is scaled way up (our toggle,
-     or an OS/browser text-size boost we can't detect), columns stop shrinking
-     below a legible minimum and extra tiles wrap to another row instead of
-     clipping or overlapping. */
-  grid-template-columns: repeat(auto-fit, minmax(2.3rem, 1fr));
+  /* auto-fill (not auto-fit) + a real minmax floor (not 0) means tiles shrink
+     to fit 7 across on a normal-size narrow phone, but if text is scaled way
+     up (our toggle, or an OS/browser text-size boost we can't detect), columns
+     stop shrinking below a legible minimum and extra tiles wrap to another row
+     instead of clipping or overlapping. auto-fill specifically (rather than
+     auto-fit) matters once tiles start getting played off the rack in Best
+     Play: auto-fit collapses now-empty tracks and lets the remaining tiles
+     grow to fill the freed space; auto-fill keeps the empty tracks around so
+     the remaining tiles stay the same size and the rack just gets shorter. */
+  grid-template-columns: repeat(auto-fill, minmax(2.3rem, 1fr));
   gap: 0.5rem;
   max-width: 24rem;
   min-height: 2rem;
