@@ -369,6 +369,14 @@ main.panel {
   margin-bottom: 0.75rem;
 }
 
+.bw-actions[hidden] {
+  /* [hidden] is normally display:none via the UA stylesheet, but the plain
+     .bw-actions rule above has equal specificity and comes from author CSS,
+     so it was winning and rendering this row (e.g. Done/Clear in Type mode)
+     even while hidden. Need higher specificity to actually hide it. */
+  display: none;
+}
+
 .bw-actions button {
   flex: 1;
   min-width: 120px;
