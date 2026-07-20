@@ -13,7 +13,8 @@ function renderTiles(word) {
   const tiles = [...word.toLowerCase()]
     .map((letter) => {
       const pts = LETTER_POINTS[letter] ?? '';
-      return `<span class="tile">${letter}<span class="pts">${pts}</span></span>`;
+      const wide = String(pts).length > 1 ? ' pts-wide' : '';
+      return `<span class="tile">${letter}<span class="pts${wide}">${pts}</span></span>`;
     })
     .join('');
   return `<div class="result-tiles">${tiles}</div>`;

@@ -26,7 +26,8 @@ function tileHtml(letter) {
   const isBlank = letter === '_';
   const display = isBlank ? '' : letter;
   const pts = LETTER_POINTS[letter] ?? 0;
-  return `<span class="tile${isBlank ? ' blank' : ''}">${display}<span class="pts">${pts}</span></span>`;
+  const wide = String(pts).length > 1 ? ' pts-wide' : '';
+  return `<span class="tile${isBlank ? ' blank' : ''}">${display}<span class="pts${wide}">${pts}</span></span>`;
 }
 
 function renderRack(rack) {
@@ -135,7 +136,8 @@ function renderGuessTiles(word) {
   const tiles = [...word.toUpperCase()]
     .map((letter) => {
       const pts = LETTER_POINTS[letter] ?? '';
-      return `<span class="tile">${letter}<span class="pts">${pts}</span></span>`;
+      const wide = String(pts).length > 1 ? ' pts-wide' : '';
+      return `<span class="tile">${letter}<span class="pts${wide}">${pts}</span></span>`;
     })
     .join('');
   return `<div class="result-tiles">${tiles}</div>`;

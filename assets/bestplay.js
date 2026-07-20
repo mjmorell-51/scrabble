@@ -91,7 +91,8 @@
   // player can see what letter a blank on the board was played as.
   function tileHtml(letter, isBlank) {
     const pts = isBlank ? 0 : (LETTER_POINTS[letter] ?? 0);
-    return `<span class="tile${isBlank ? ' blank' : ''}">${letter}<span class="pts">${pts}</span></span>`;
+    const wide = String(pts).length > 1 ? ' pts-wide' : '';
+    return `<span class="tile${isBlank ? ' blank' : ''}">${letter}<span class="pts${wide}">${pts}</span></span>`;
   }
 
   function renderBoard() {
@@ -138,7 +139,9 @@
       if (isBlank) classes.push('blank');
       if (used) classes.push('used');
       const canTap = mode === 'place' && !!selectedStart && !!cursor && !used;
-      return `<button type="button" class="${classes.join(' ')}" data-i="${i}" ${canTap ? '' : 'disabled'}>${isBlank ? '' : letter}<span class="pts">${isBlank ? 0 : (LETTER_POINTS[letter] ?? 0)}</span></button>`;
+      const pts = isBlank ? 0 : (LETTER_POINTS[letter] ?? 0);
+      const wide = String(pts).length > 1 ? ' pts-wide' : '';
+      return `<button type="button" class="${classes.join(' ')}" data-i="${i}" ${canTap ? '' : 'disabled'}>${isBlank ? '' : letter}<span class="pts${wide}">${pts}</span></button>`;
     }).join('');
   }
 

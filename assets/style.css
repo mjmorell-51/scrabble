@@ -96,6 +96,13 @@ header.site a {
   font-family: system-ui, sans-serif;
 }
 
+/* Two-digit scores (only 10, on Q/Z) are twice as wide as a single digit and bleed
+   into the letter at the larger text sizes -- shrink them so "10" occupies about the
+   same width a single digit does. Applied wherever a 10-point tile is rendered. */
+.tile .pts.pts-wide {
+  font-size: 0.4em;
+}
+
 .tagline {
   color: var(--tile);
   opacity: 0.85;
@@ -487,6 +494,8 @@ html[data-text-size="xlarge"] .rack { grid-template-columns: repeat(auto-fit, mi
 
 html[data-text-size="large"] .pts { font-size: 0.58em; }
 html[data-text-size="xlarge"] .pts { font-size: 0.62em; }
+html[data-text-size="large"] .pts.pts-wide { font-size: 0.42em; }
+html[data-text-size="xlarge"] .pts.pts-wide { font-size: 0.45em; }
 
 .board-wrap {
   overflow-x: auto;
