@@ -52,13 +52,18 @@ if (count($pool) < 4) {
 }
 
 // Make a real word of length $letters into a plausible non-word by changing one letter.
-// Falls back to a fully random string if mutation keeps landing on real words.
+// The replacement stays in the same class as the letter it replaces -- vowel for vowel,
+// consonant for consonant -- so the fake keeps a word-like shape (SCRABBLE -> SCRIBBLE,
+// not SCR9BBLE). Falls back to random letters if mutation keeps landing on real words.
 function makeFake(array $pool, array $dictSet, int $letters): string {
+    $vowels = 'aeiou';
+    $consonants = 'bcdfghjklmnpqrstvwxyz'; // y treated as a consonant here
     for ($attempt = 0; $attempt < 25; $attempt++) {
         $word = $pool[array_rand($pool)];
         $pos = random_int(0, $letters - 1);
         $orig = $word[$pos];
-        $new = chr(random_int(ord('a'), ord('z')));
+        $set = strpos($vowels, $orig) !== false ? $vowels : $consonants;
+        $new = $set[random_int(0, strlen($set) - 1)];
         if ($new === $orig) {
             continue;
         }
@@ -77,17 +82,13 @@ function makeFake(array $pool, array $dictSet, int $letters): string {
     return $s;
 }
 
-// Aim for a roughly even real/fake mix, then shuffle so order is unpredictable.
-$flags = [];
-for ($i = 0; $i < $count; $i++) {
-    $flags[] = $i < intdiv($count, 2);
-}
-shuffle($flags);
-
+// Each question is an independent 50/50 coin flip between a real word and a fake, so the
+// count of "yes" answers isn't fixed in advance -- it averages half but varies per quiz.
 $used = [];       // tile-strings already asked, to avoid duplicates within a quiz
 $questions = [];
 
-foreach ($flags as $isWord) {
+for ($i = 0; $i < $count; $i++) {
+    $isWord = random_int(0, 1) === 1;
     $tiles = null;
     for ($tries = 0; $tries < 40; $tries++) {
         $candidate = $isWord ? $pool[array_rand($pool)] : makeFake($pool, $dictSet, $letters);

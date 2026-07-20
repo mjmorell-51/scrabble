@@ -18,8 +18,6 @@ const questionTilesEl = document.getElementById('question-tiles');
 const yesBtn = document.getElementById('yes-btn');
 const noBtn = document.getElementById('no-btn');
 const feedbackEl = document.getElementById('feedback');
-const nextRow = document.getElementById('next-row');
-const nextBtn = document.getElementById('next-btn');
 
 const doneScreen = document.getElementById('quiz-done');
 const scoreResult = document.getElementById('score-result');
@@ -28,6 +26,8 @@ const againBtn = document.getElementById('again-btn');
 let questions = [];
 let current = 0;
 let score = 0;
+let advanceTimer = null;
+const FEEDBACK_MS = 1100; // how long the correct/incorrect note lingers before the next Q
 
 function renderTiles(word) {
   return [...word.toLowerCase()]
@@ -49,7 +49,6 @@ function renderQuestion() {
   progressEl.textContent = `Question ${current + 1} of ${questions.length}`;
   questionTilesEl.innerHTML = renderTiles(q.tiles);
   feedbackEl.innerHTML = '';
-  nextRow.hidden = true;
   yesBtn.disabled = false;
   noBtn.disabled = false;
   yesBtn.classList.remove('active');
@@ -57,6 +56,7 @@ function renderQuestion() {
 }
 
 function answer(saidYes) {
+  if (yesBtn.disabled) return; // already answered this question
   const q = questions[current];
   yesBtn.disabled = true;
   noBtn.disabled = true;
@@ -74,18 +74,15 @@ function answer(saidYes) {
   feedbackEl.innerHTML =
     `<span class="verdict ${verdictClass}">${mark} ${lead} &mdash; ${truth}</span>`;
 
-  nextBtn.textContent = current === questions.length - 1 ? 'See results' : 'Next';
-  nextRow.hidden = false;
-  nextBtn.focus();
-}
-
-function next() {
-  current++;
-  if (current >= questions.length) {
-    finish();
-  } else {
-    renderQuestion();
-  }
+  // Let the feedback linger briefly, then move straight to the next question.
+  advanceTimer = setTimeout(() => {
+    current++;
+    if (current >= questions.length) {
+      finish();
+    } else {
+      renderQuestion();
+    }
+  }, FEEDBACK_MS);
 }
 
 function finish() {
@@ -120,6 +117,7 @@ setupForm.addEventListener('submit', async (event) => {
       alert(data.error || 'Could not build the quiz.');
       return;
     }
+    clearTimeout(advanceTimer);
     questions = data.questions;
     current = 0;
     score = 0;
@@ -135,5 +133,4 @@ setupForm.addEventListener('submit', async (event) => {
 
 yesBtn.addEventListener('click', () => answer(true));
 noBtn.addEventListener('click', () => answer(false));
-nextBtn.addEventListener('click', next);
 againBtn.addEventListener('click', () => showScreen('setup'));
