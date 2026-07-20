@@ -220,6 +220,12 @@ main.panel {
   margin-bottom: 0.75rem;
 }
 
+.lookup-form[hidden] {
+  /* Same [hidden]-vs-author-display bug as .bw-actions[hidden] above --
+     without this, #type-form still rendered in Place mode. */
+  display: none;
+}
+
 .lookup-form input[type="text"] {
   flex: 1;
   font-size: 1.3rem;
