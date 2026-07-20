@@ -37,6 +37,34 @@ the file off local disk — so `api/*.php` scripts read
 private data file ever moves, it must stay under a dot-prefixed directory or gain
 equivalent protection.
 
+The word-definitions file `.data/definitions.tsv` lives under the same `.data/` dir and
+gets the same treatment (read by `api/define.php` off disk, 403 over HTTP). It's not
+secret — it's Wiktionary text (CC BY-SA), so serving it would be fine license-wise —
+but keeping it out of direct HTTP download is consistent and avoids handing out the
+whole 13MB scrape as one file.
+
+## Word definitions
+
+`api/define.php?word=X` returns `{word, definition}` (definition `null` if the word has
+no entry). Definitions come from `.data/definitions.tsv`, a sorted `word<TAB>definition`
+file (~189k of the 196,601 NWL words, ~96% coverage, 13MB) built from the English
+Wiktionary via **Wiktextract** (kaikki.org's `kaikki.org-dictionary-English.jsonl`,
+CC BY-SA — attribution shown in each page footer). The file is sorted identically to
+`nwl2023.txt` (plain ASCII order over lowercase keys) and looked up by **byte-offset
+binary search** (`lookupDefinition()`, the classic `look`(1) seek-and-align approach) so
+no multi-MB load happens per request — ~0.05ms/lookup. Keys are pure `[a-z]`; definition
+text is UTF-8 after the tab.
+
+To regenerate (e.g. new NWL list, or to tune gloss selection): run
+`.tools/build-definitions.py` (usage in its header) against a freshly downloaded
+Wiktextract English JSONL. It keeps only NWL words, takes the LAST gloss in
+Wiktextract's `senses[].glosses` hierarchy (the leaf is the real definition, not the
+top-level category), deprioritizes cross-reference glosses ("Initialism of…",
+"Alternative form of…", etc.) so a genuine definition leads, and writes a sorted TSV.
+The script lives under `.tools/` (dot-dir, so it's not HTTP-served). Frontend rendering
+is shared via `assets/define.js` (`Definitions.show(container, word)` — fetch + cache +
+race-guard).
+
 **Caveat**: PHP's built-in dev server (`php -S`) does *not* enforce this — a local
 `/.data/...` request will return 200 there. That's expected; only the real Apache vhost
 enforces the block, so any "is this file protected" check has to happen against

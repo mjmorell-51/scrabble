@@ -44,6 +44,9 @@ form.addEventListener('submit', async (event) => {
 
     result.innerHTML = renderTiles(word) +
       `<span class="verdict ${verdictClass}">${data.valid ? '✓' : '✗'} ${verdictText}</span>`;
+    if (data.valid) {
+      Definitions.show(result, data.word);
+    }
   } catch (err) {
     result.innerHTML = renderTiles(word) +
       '<span class="verdict error">Could not reach the server. Try again.</span>';

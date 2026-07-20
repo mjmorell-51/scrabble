@@ -315,6 +315,9 @@
         return;
       }
       resultEl.innerHTML = buildPlayMessage(data);
+      if (data.bestWord) {
+        Definitions.show(resultEl, data.bestWord);
+      }
       if (data.valid) {
         placements.forEach((p) => {
           board[`${p.r},${p.c}`] = { r: p.r, c: p.c, letter: p.letter, blank: p.blank };
@@ -376,6 +379,7 @@
         valid: true, words: data.words, score: data.score, bingo: data.bingo,
         rank: 1, totalValid: 1, bestWord: primaryWordOf(data.words), bestScore: data.score,
       });
+      Definitions.show(resultEl, primaryWordOf(data.words));
       render();
     } catch (err) {
       showResultError('Could not reach the server. Try again.');

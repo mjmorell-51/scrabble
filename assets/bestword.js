@@ -87,6 +87,7 @@ async function showHint() {
 
     const bingoNote = data.bingo ? ' <span class="badge">Bingo! +50</span>' : '';
     resultEl.innerHTML = `<span class="verdict valid">${data.word} &mdash; ${data.score} pts${bingoNote}</span>`;
+    Definitions.show(resultEl, data.word);
   } catch (err) {
     resultEl.innerHTML = '<span class="verdict error">Could not reach the server. Try again.</span>';
   } finally {
@@ -116,6 +117,12 @@ async function submitGuess(event) {
     }
 
     resultEl.innerHTML = renderGuessTiles(word) + buildGuessMessage(data);
+    // Define whichever word was reported as best (that's the player's own word when
+    // their guess was the top play).
+    const reported = data.bestWord || (data.valid ? data.word : null);
+    if (reported) {
+      Definitions.show(resultEl, reported);
+    }
   } catch (err) {
     resultEl.innerHTML = renderGuessTiles(word) +
       '<span class="verdict error">Could not reach the server. Try again.</span>';
